@@ -8,17 +8,22 @@ Module to parse official ocdid data accept district data, and attempt to
   match given data to official ocdids. Provides ratios data for inexact
   matches and a list of closest matches when searching
 
+Requirements:
+Python2.7
+Requests
+fuzzywuzzy
+
 Constants:
 OCDID_DATA -- location to pull ocdid data from, either a file or url
 MATCH_RATIO -- lowest valid match ratio accepted
 MATCH_LIMIT -- maximum number of matched values returned
-TYPE_CONVERSIONS -- conversions for general district types to valid ocd types
+SEARCH_CONVERSIONS -- conversions for general district types to valid ocd types
 
 """
 OCDID_DATA = 'https://raw.github.com/opencivicdata/ocd-division-ids/master/identifiers/country-us.csv'
 MATCH_RATIO = 90 
 MATCH_LIMIT = 10
-TYPE_CONVERSIONS = {
+SEARCH_CONVERSIONS = {
                 'city':set(['place','district']),
                 'town':set(['place']),
                 'township':set(['place']),
@@ -120,7 +125,8 @@ def match_type(ocdid_prefix,dist_type,dist_count):
     'No match' -- if not match found, returns None for ocdid and -1 match ratio
 
     """
-    # default initial values for key, district length difference, and 
+    # default initial values for key, district length difference, and
+    # district type ratio
     key = ''
     diff_len = 1000
     type_ratio = 0
@@ -142,7 +148,14 @@ def match_type(ocdid_prefix,dist_type,dist_count):
             type_ratio = new_type_ratio
 
     # district length difference must be less than 5% for a valid match
-    if float(diff_len)/dist_count < .05:
+    if diff_len == 0:
+        return key
+    elif float(diff_len)/dist_count < .05:
+        ocd_count = len(ocdids[ocdid_prefix][key])
+        if dist_count > ocd_count:
+            print 'Extra provided districts:{}'.format(dist_count-ocd_count)
+        else:
+            print 'Extra official districts:{}'.format(ocd_count-dist_count)
         return key
     else:
         return 'No match'
@@ -158,7 +171,7 @@ def name_search(name):
 
     Returns:
     match_list[:MATCH_LIMIT] -- a list of the top 'MATCH_LIMIT' matches that
-                                    that at least meet 'MATCH_RATIO'
+                                    are greater than 'MATCH_RATIO'
 
     """
     match_list = []
@@ -188,15 +201,15 @@ def type_name_search(type_val,name):
 
     Returns:
     match_list[:MATCH_LIMIT] -- a list of the top 'MATCH_LIMIT' matches that
-                                    that at least meet 'MATCH_RATIO' 
+                                    are greater than 'MATCH_RATIO' 
 
     """
     match_list = []
 
     # if type_val is standard, use the set of valid district type matches
     # otherwise accept 'all' matches
-    if type_val in TYPE_CONVERSIONS:
-        valid_dists = TYPE_CONVERSIONS[type_val]
+    if type_val in SEARCH_CONVERSIONS:
+        valid_dists = SEARCH_CONVERSIONS[type_val]
     else:
         valid_dists == 'all'
 
