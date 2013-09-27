@@ -17,7 +17,7 @@ Constants:
 OCDID_DATA -- location to pull ocdid data from, either a file or url
 MATCH_RATIO -- lowest valid match ratio accepted
 MATCH_LIMIT -- maximum number of matched values returned
-SEARCH_CONVERSIONS -- conversions for general district types to valid ocd types
+SEARCH_CONVERSIONS -- conversions for district search types to valid ocd types
 
 """
 OCDID_DATA = 'https://raw.github.com/opencivicdata/ocd-division-ids/master/identifiers/country-us.csv'
