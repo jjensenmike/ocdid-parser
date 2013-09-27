@@ -7,6 +7,8 @@ Written to parse and match districts to Open Civic Data Division IDs (https://gi
 
 requirements
 ============
+python2.7
 
 fuzzywuzzy
+
 requests
